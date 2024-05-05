@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
 import { authenticateUser } from "./auth";
-import { RateLimiterMode } from "../../src/types";
-import { addWebScraperJob } from "../../src/services/queue-jobs";
-import { getWebScraperQueue } from "../../src/services/queue-service";
+import { RateLimiterMode } from "../../../src/types";
+import { addWebScraperJob } from "../../../src/services/queue-jobs";
+import { getWebScraperQueue } from "../../../src/services/queue-service";
+import { VercelRequest, VercelResponse } from "@vercel/node";
 
-export async function crawlStatusController(req: Request, res: Response) {
+export async function crawlStatusController(req: VercelRequest, res: VercelResponse) {
   try {
     const { success, team_id, error, status } = await authenticateUser(
       req,
@@ -14,7 +15,7 @@ export async function crawlStatusController(req: Request, res: Response) {
     if (!success) {
       return res.status(status).json({ error });
     }
-    const job = await getWebScraperQueue().getJob(req.params.jobId);
+    const job = await getWebScraperQueue().getJob(req.query.jobId);
     if (!job) {
       return res.status(404).json({ error: "Job not found" });
     }

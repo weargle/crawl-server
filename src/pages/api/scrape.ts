@@ -1,84 +1,85 @@
 import {VercelRequest, VercelResponse} from "@vercel/node"
 import { authenticateUser } from "./auth";
-import { numTokensFromString } from "src/lib/LLM-extraction/helpers";
-import { ExtractorOptions } from "src/lib/entities";
-import { WebScraperDataProvider } from "src/scraper/WebScraper";
-import { isUrlBlocked } from "src/scraper/WebScraper/utils/blocklist";
-import { billTeam, checkTeamCredits } from "src/services/billing/credit_billing";
-import { logJob } from "src/services/logging/log_job";
-import { RateLimiterMode } from "src/types";
+import { numTokensFromString } from "../../lib/LLM-extraction/helpers";
+import { ExtractorOptions } from "../../lib/entities";
+import { WebScraperDataProvider } from "../../scraper/WebScraper";
+import { isUrlBlocked } from "../../scraper/WebScraper/utils/blocklist";
+import { billTeam, checkTeamCredits } from "../..//services/billing/credit_billing";
+import { logJob } from "../../services/logging/log_job";
+import { RateLimiterMode } from "../../types";
+import { Document } from "../../lib/entities";
 
 export async function scrapeHelper(
-    req: VercelRequest,
-    team_id: string,
-    crawlerOptions: any,
-    pageOptions: any,
-    extractorOptions: ExtractorOptions
-  ): Promise<{
-    success: boolean;
-    error?: string;
-    data?: Document;
-    returnCode: number;
-  }> {
-    const url = req.body.url;
-    if (!url) {
-      return { success: false, error: "Url is required", returnCode: 400 };
-    }
-  
-    if (isUrlBlocked(url)) {
-      return { success: false, error: "Firecrawl currently does not support social media scraping due to policy restrictions. We're actively working on building support for it.", returnCode: 403 };
-    }
-  
-  
-    const a = new WebScraperDataProvider();
-    await a.setOptions({
-      mode: "single_urls",
-      urls: [url],
-      crawlerOptions: {
-        ...crawlerOptions,
-      },
-      pageOptions: pageOptions,
-      extractorOptions: extractorOptions
-    });
-  
-    const docs = await a.getDocuments(false);
-    // make sure doc.content is not empty
-    const filteredDocs = docs.filter(
-      (doc: { content?: string }) => doc.content && doc.content.trim().length > 0
-    );
-    if (filteredDocs.length === 0) {
-      return { success: true, error: "No page found", returnCode: 200 };
-    }
-  
-  
-    let creditsToBeBilled =  filteredDocs.length;
-    const creditsPerLLMExtract = 5;
-  
-    if (extractorOptions.mode === "llm-extraction"){
-      creditsToBeBilled = creditsToBeBilled + (creditsPerLLMExtract * filteredDocs.length)
-    }
-  
-    const billingResult = await billTeam(
-      team_id,
-      creditsToBeBilled
-    );
-    if (!billingResult.success) {
-      return {
-        success: false,
-        error:
-          "Failed to bill team. Insufficient credits or subscription not found.",
-        returnCode: 402,
-      };
-    }
-  
+  req: VercelRequest,
+  team_id: string,
+  crawlerOptions: any,
+  pageOptions: any,
+  extractorOptions: ExtractorOptions
+): Promise<{
+  success: boolean;
+  error?: string;
+  data?: Document;
+  returnCode: number;
+}> {
+  const url = req.body.url;
+  if (!url) {
+    return { success: false, error: "Url is required", returnCode: 400 };
+  }
+
+  if (isUrlBlocked(url)) {
+    return { success: false, error: "Firecrawl currently does not support social media scraping due to policy restrictions. We're actively working on building support for it.", returnCode: 403 };
+  }
+
+
+  const a = new WebScraperDataProvider();
+  await a.setOptions({
+    mode: "single_urls",
+    urls: [url],
+    crawlerOptions: {
+      ...crawlerOptions,
+    },
+    pageOptions: pageOptions,
+    extractorOptions: extractorOptions
+  });
+
+  const docs = await a.getDocuments(false);
+  // make sure doc.content is not empty
+  const filteredDocs = docs.filter(
+    (doc: { content?: string }) => doc.content && doc.content.trim().length > 0
+  );
+  if (filteredDocs.length === 0) {
+    return { success: true, error: "No page found", returnCode: 200 };
+  }
+
+
+  let creditsToBeBilled =  filteredDocs.length;
+  const creditsPerLLMExtract = 5;
+
+  if (extractorOptions.mode === "llm-extraction"){
+    creditsToBeBilled = creditsToBeBilled + (creditsPerLLMExtract * filteredDocs.length)
+  }
+
+  const billingResult = await billTeam(
+    team_id,
+    creditsToBeBilled
+  );
+  if (!billingResult.success) {
     return {
-      success: true,
-      data: filteredDocs[0],
-      returnCode: 200,
+      success: false,
+      error:
+        "Failed to bill team. Insufficient credits or subscription not found.",
+      returnCode: 402,
     };
   }
 
-export default (req: VercelRequest, res: VercelResponse) => {
+  return {
+    success: true,
+    data: filteredDocs[0],
+    returnCode: 200,
+  };
+}
+
+export default async (req: VercelRequest, res: VercelResponse) => {
     try {
         // make sure to authenticate user first, Bearer <token>
         const { success, team_id, error, status } = await authenticateUser(

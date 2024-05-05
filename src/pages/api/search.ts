@@ -1,15 +1,15 @@
-import { Request, Response } from "express";
-import { WebScraperDataProvider } from "../scraper/WebScraper";
-import { billTeam, checkTeamCredits } from "../services/billing/credit_billing";
+import { WebScraperDataProvider } from "../../scraper/WebScraper";
+import { billTeam, checkTeamCredits } from "../../services/billing/credit_billing";
 import { authenticateUser } from "./auth";
-import { RateLimiterMode } from "../types";
-import { logJob } from "../services/logging/log_job";
-import { PageOptions, SearchOptions } from "../lib/entities";
-import { search } from "../search";
-import { isUrlBlocked } from "../scraper/WebScraper/utils/blocklist";
+import { RateLimiterMode } from "../../types";
+import { logJob } from "../../services/logging/log_job";
+import { PageOptions, SearchOptions } from "../../lib/entities";
+import { search } from "../../search";
+import { isUrlBlocked } from "../../scraper/WebScraper/utils/blocklist";
+import { VercelRequest, VercelResponse } from "@vercel/node";
 
 export async function searchHelper(
-  req: Request,
+  req: VercelRequest,
   team_id: string,
   crawlerOptions: any,
   pageOptions: PageOptions,
@@ -103,7 +103,7 @@ export async function searchHelper(
   };
 }
 
-export async function searchController(req: Request, res: Response) {
+export default async function searchController(req: VercelRequest, res: VercelResponse) {
   try {
     // make sure to authenticate user first, Bearer <token>
     const { success, team_id, error, status } = await authenticateUser(

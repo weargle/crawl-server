@@ -1,8 +1,8 @@
-import { parseApi } from "/src/lib/parseApi";
-import { getRateLimiter } from "../../src/services/rate-limiter";
-import { AuthResponse, RateLimiterMode } from "../../src/types";
-import { supabase_service } from "../../src/services/supabase";
-import { withAuth } from "../../src/lib/withAuth";
+import { parseApi } from "../../lib/parseApi";
+import { getRateLimiter } from "../../services/rate-limiter";
+import { AuthResponse, RateLimiterMode } from "../../types";
+import { supabase_service } from "../../services/supabase";
+import { withAuth } from "../../lib/withAuth";
 
 
 export async function authenticateUser(req, res, mode?: RateLimiterMode) : Promise<AuthResponse> {

@@ -1,9 +1,9 @@
-import { Request, Response } from "express";
-import { getWebScraperQueue } from "../../src/services/queue-service";
+import { VercelRequest, VercelResponse } from "@vercel/node";
+import { getWebScraperQueue } from "../../../src/services/queue-service";
 
-export async function crawlJobStatusPreviewController(req: Request, res: Response) {
+export async function crawlJobStatusPreviewController(req: VercelRequest, res: VercelResponse) {
   try {
-    const job = await getWebScraperQueue().getJob(req.params.jobId);
+    const job = await getWebScraperQueue().getJob(req.query.jobId);
     if (!job) {
       return res.status(404).json({ error: "Job not found" });
     }
