@@ -1,0 +1,13 @@
+{
+  "/_app": "pages/_app.js",
+  "/_error": "pages/_error.js",
+  "/api/auth": "pages/api/auth.js",
+  "/api/crawl-status": "pages/api/crawl-status.js",
+  "/api/crawl": "pages/api/crawl.js",
+  "/api/crawlPreview": "pages/api/crawlPreview.js",
+  "/api/scrape": "pages/api/scrape.js",
+  "/api/search": "pages/api/search.js",
+  "/api/status": "pages/api/status.js",
+  "/_document": "pages/_document.js",
+  "/404": "pages/404.html"
+}
