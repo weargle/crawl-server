@@ -8,7 +8,7 @@ import { VercelRequest, VercelResponse } from "@vercel/node";
 
 
 
-export async function crawlController(req: VercelRequest, res: VercelResponse) {
+export default async function crawlController(req: VercelRequest, res: VercelResponse) {
     try {
       const { success, team_id, error, status } = await authenticateUser(
         req,
@@ -16,22 +16,23 @@ export async function crawlController(req: VercelRequest, res: VercelResponse) {
         RateLimiterMode.Crawl
       );
       if (!success) {
-        return res.status(status).json({ error });
+        res.status(status).json({ error });
       }
   
       const { success: creditsCheckSuccess, message: creditsCheckMessage } =
         await checkTeamCredits(team_id, 1);
       if (!creditsCheckSuccess) {
-        return res.status(402).json({ error: "Insufficient credits" });
+        res.status(402).json({ error: "Insufficient credits" });
       }
   
       const url = req.body.url;
+      console.log(url)
       if (!url) {
-        return res.status(400).json({ error: "Url is required" });
+        res.status(400).json({ error: "Url is required" });
       }
   
       if (isUrlBlocked(url)) {
-        return res.status(403).json({ error: "Firecrawl currently does not support social media scraping due to policy restrictions. We're actively working on building support for it." });
+        res.status(403).json({ error: "Firecrawl currently does not support social media scraping due to policy restrictions. We're actively working on building support for it." });
       }
       
       const mode = req.body.mode ?? "crawl";
@@ -58,15 +59,17 @@ export async function crawlController(req: VercelRequest, res: VercelResponse) {
               current_url: progress.currentDocumentUrl,
             });
           });
-          return res.json({
+          res.json({
             success: true,
             documents: docs,
           });
         } catch (error) {
           console.error(error);
-          return res.status(500).json({ error: error.message });
+          res.status(500).json({ error: error.message });
         }
       }
+      console.log(mode)
+      console.log(req.body.origin)
       const job = await addWebScraperJob({
         url: url,
         mode: mode ?? "crawl", // fix for single urls not working
@@ -79,7 +82,8 @@ export async function crawlController(req: VercelRequest, res: VercelResponse) {
       res.json({ jobId: job.id });
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error.message });
     }
+    console.log("===========")
   }
   

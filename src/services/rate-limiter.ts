@@ -1,5 +1,5 @@
 import { RateLimiterRedis } from "rate-limiter-flexible";
-import * as redis from "redis";
+import redisClient from "../../src/lib/redis";
 import { RateLimiterMode } from "../../src/types";
 
 const MAX_REQUESTS_PER_MINUTE_PREVIEW = 5;
@@ -12,12 +12,6 @@ const MAX_REQUESTS_PER_MINUTE_ACCOUNT = 20;
 const MAX_REQUESTS_PER_MINUTE_CRAWL_STATUS = 120;
 
 
-
-
-export const redisClient = redis.createClient({
-  url: process.env.REDIS_URL,
-  legacyMode: true,
-});
 
 export const previewRateLimiter = new RateLimiterRedis({
   storeClient: redisClient,

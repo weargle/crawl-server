@@ -13,11 +13,11 @@ export async function crawlStatusController(req: VercelRequest, res: VercelRespo
       RateLimiterMode.CrawlStatus
     );
     if (!success) {
-      return res.status(status).json({ error });
+      res.status(status).json({ error });
     }
     const job = await getWebScraperQueue().getJob(req.query.jobId);
     if (!job) {
-      return res.status(404).json({ error: "Job not found" });
+      res.status(404).json({ error: "Job not found" });
     }
 
     const { current, current_url, total, current_step } = await job.progress();
@@ -32,6 +32,6 @@ export async function crawlStatusController(req: VercelRequest, res: VercelRespo
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 }

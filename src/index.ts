@@ -24,12 +24,12 @@ app.get(`/admin/${process.env.BULL_AUTH_KEY}/queues`, async (req, res) => {
 
     const noActiveJobs = webScraperActive === 0;
     // 200 if no active jobs, 503 if there are active jobs
-    return res.status(noActiveJobs ? 200 : 500).json({
+    res.status(noActiveJobs ? 200 : 500).json({
       webScraperActive,
       noActiveJobs,
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 });

@@ -112,7 +112,7 @@ export default async function searchController(req: VercelRequest, res: VercelRe
       RateLimiterMode.Search
     );
     if (!success) {
-      return res.status(status).json({ error });
+      res.status(status).json({ error });
     }
     const crawlerOptions = req.body.crawlerOptions ?? {};
     const pageOptions = req.body.pageOptions ?? {
@@ -128,11 +128,11 @@ export default async function searchController(req: VercelRequest, res: VercelRe
       const { success: creditsCheckSuccess, message: creditsCheckMessage } =
         await checkTeamCredits(team_id, 1);
       if (!creditsCheckSuccess) {
-        return res.status(402).json({ error: "Insufficient credits" });
+        res.status(402).json({ error: "Insufficient credits" });
       }
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ error: "Internal server error" });
+      res.status(500).json({ error: "Internal server error" });
     }
     const startTime = new Date().getTime();
     const result = await searchHelper(
@@ -157,9 +157,9 @@ export default async function searchController(req: VercelRequest, res: VercelRe
       pageOptions: pageOptions,
       origin: origin,
     });
-    return res.status(result.returnCode).json(result);
+    res.status(result.returnCode).json(result);
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 }

@@ -13,16 +13,16 @@ export async function crawlPreviewController(req: VercelRequest, res: VercelResp
         RateLimiterMode.Preview
       );
       if (!success) {
-        return res.status(status).json({ error });
+        res.status(status).json({ error });
       }
       // authenticate on supabase
       const url = req.body.url;
       if (!url) {
-        return res.status(400).json({ error: "Url is required" });
+        res.status(400).json({ error: "Url is required" });
       }
   
       if (isUrlBlocked(url)) {
-        return res.status(403).json({ error: "Firecrawl currently does not support social media scraping due to policy restrictions. We're actively working on building support for it." });
+        res.status(403).json({ error: "Firecrawl currently does not support social media scraping due to policy restrictions. We're actively working on building support for it." });
       }
   
       const mode = req.body.mode ?? "crawl";
@@ -41,6 +41,6 @@ export async function crawlPreviewController(req: VercelRequest, res: VercelResp
       res.json({ jobId: job.id });
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error.message });
     }
   }

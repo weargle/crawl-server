@@ -10,11 +10,11 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     
         const noWaitingJobs = waitingJobs === 0;
         // 200 if no active jobs, 503 if there are active jobs
-        return res.status(noWaitingJobs ? 200 : 500).json({
+        res.status(noWaitingJobs ? 200 : 500).json({
           waitingJobs,
         });
       } catch (error) {
         console.error(error);
-        return res.status(500).json({ error: error.message });
+        res.status(500).json({ error: error.message });
       }
 }

@@ -7,4 +7,6 @@ dump.rdb
 .gitignore
 .dockerignore
 .env
+.env.local
 .vercel
+.next/

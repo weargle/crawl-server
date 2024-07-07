@@ -5,7 +5,7 @@ export async function crawlJobStatusPreviewController(req: VercelRequest, res: V
   try {
     const job = await getWebScraperQueue().getJob(req.query.jobId);
     if (!job) {
-      return res.status(404).json({ error: "Job not found" });
+      res.status(404).json({ error: "Job not found" });
     }
 
     const { current, current_url, total, current_step } = await job.progress();
@@ -20,6 +20,6 @@ export async function crawlJobStatusPreviewController(req: VercelRequest, res: V
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 }
