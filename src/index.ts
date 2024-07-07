@@ -3,7 +3,7 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import "dotenv/config";
 import { getWebScraperQueue } from "./services/queue-service";
-import { redisClient } from "./services/rate-limiter";
+// import { redisClient } from "./services/rate-limiter";
 const { createBullBoard } = require("@bull-board/api");
 const { BullAdapter } = require("@bull-board/api/bullAdapter");
 const { ExpressAdapter } = require("@bull-board/express");
@@ -12,7 +12,7 @@ export const app = express();
 
 app.use(cors()); // Add this line to enable CORS
 
-redisClient.connect();
+// redisClient.connect();
 
 // Use this as a "health check" that way we dont destroy the server
 app.get(`/admin/${process.env.BULL_AUTH_KEY}/queues`, async (req, res) => {
